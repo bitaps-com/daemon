@@ -304,6 +304,9 @@ class Terminal:
                 return
 
             stdin.send(data)
+        def signal_handler(signal, frame):
+            print("\nTerminal disconected from daemon")
+            self.loop.stop()
 
         def eof():
             self.loop.stop()
@@ -312,7 +315,7 @@ class Terminal:
         @asyncio.coroutine
         def shutdown():
             self.loop.stop()
-
+        signal.signal(signal.SIGINT, signal_handler)
         try:
             self.loop.add_reader(stdout, stdout_data_received)
             self.loop.add_reader(stderr, stderr_data_received)
