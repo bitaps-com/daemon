@@ -62,6 +62,9 @@ class Server:
             data = os.read(self.o.fileno(), 4096)
         except:
             return
+        if not data:
+            self.loop.stop()
+            return 
         for socket in self.socket_stdout:
             try:
                 socket.send(data)
@@ -77,6 +80,9 @@ class Server:
             data = os.read(self.e.fileno(), 4096)
         except:
             return
+        if not data:
+            self.loop.stop()
+            return 
         f = open('error.log','a+')
         f.write(data.decode())
         f.close()
@@ -95,6 +101,9 @@ class Server:
             data = os.read(self.l.fileno(), 4096)
         except:
             return
+        if not data:
+            self.loop.stop()
+            return 
         for socket in self.socket_logger:
             try:
                 socket.send(data[:4096])

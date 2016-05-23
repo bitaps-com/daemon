@@ -2,6 +2,8 @@ import re
 import sys
 import time
 from .constants import *
+import signal
+
 
 try:
     getattr(sys.modules['__main__'], 'LOGGER_DICT')
@@ -47,9 +49,12 @@ class Logger:
         self.level = level
         self.name = name
         self.socket_relay = visible
+        signal.signal(signal.SIGPIPE, self.sigpipe_handler)
         if path:
             self.log_file_name = path
             
+    def sigpipe_handler(self,a, b):
+        self.loop.stop()
 
 
 

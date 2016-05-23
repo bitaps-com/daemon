@@ -110,9 +110,9 @@ class Console:
         #self.stdout = socket.socket()
         #self.stdout.connect(('127.0.0.1',8888))
         #self.terminal.loop.add_reader(self.stdout, self.stdout_data_received)
-        asyncio.async(self.console_run())
-        asyncio.async(self.stdout_data_received())
-        asyncio.async(self.stderr_data_received())
+        self.console_task = asyncio.async(self.console_run())
+        self.stdout_data_received_task = asyncio.async(self.stdout_data_received())
+        self.stderr_data_received_task = asyncio.async(self.stderr_data_received())
         # if self.terminal.logger is None:
         #     asyncio.async(self.logger_received())
 
@@ -209,23 +209,21 @@ class Console:
             curses.nocbreak()
             curses.echo()
             curses.endwin()
-            try:
-                self.terminal.loop.stop()
-                print(11)
-                yield from asyncio.sleep(1)
-                self.terminal.loop.close()
-                print(22)
-            except Exception as err:
-                pass
-                # print("error")
-                # print(err)
-            return
+            #yield from self.console_task.cancell()
+            #yield from self.stdout_data_received_task.cancell()
+            #yield from self.stderr_data_received_task.cancell()
+            #for widget in self.terminal.widget:
+            #    yield from widget.task.cancell()
+            self.terminal.loop.stop()
+            #self.terminal.loop.close()
+            print('Terminal disconnected')
+ 
         if cmd=='help':
-            self.print_line('Console local command:')
+            self.print_line('Console internal command:')
             self.print_line('')
             self.print_line('\033[9mexit\033[2m   --  exit terminal')
             self.print_line('\033[9mquit\033[2m   --  exit terminal')
-            self.print_line('\033[9mkill\033[2m   --  kill deamon')
+            self.print_line('\033[9mkill\033[2m   --  kill daemon')
             self.print_line('')
             return
 
@@ -691,7 +689,7 @@ class Console:
         self.cursor_line = len(self.input_line) - 1
         lines_change = lines_prev - lines
         self.screen.attron(curses.color_pair(PANEL))
-        # при значении больше нуля мы должны отскролить экран сверху вниз
+        # при значении больше ноля мы должны отскролить экран сверху вниз
         if lines_change:
             if lines_change > self.height - self.margin:
                 lines_change = self.height - self.margin

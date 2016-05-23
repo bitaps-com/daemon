@@ -12,6 +12,7 @@ class LogWin:
     active = False
     screen_lock = False
     widget_heights = 0
+    task = None
 
     def __init__(self, terminal):
         self.width, self.height = os.get_terminal_size()
@@ -76,7 +77,7 @@ class LogWin:
         self.screen.noutrefresh()
         self.doupdate()
         curses.curs_set(0)
-        asyncio.async(self.logger_received())
+        self.task = asyncio.async(self.logger_received())
 
 
     @asyncio.coroutine

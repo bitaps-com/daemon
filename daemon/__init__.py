@@ -17,7 +17,7 @@ except:
     setattr(sys.modules['__main__'],'LOGGER_PIPE', None)
     
 # parsing arguments
-# todo deamon stop argument wait unitl process stopeed
+# todo daemon stop argument wait unitl process stopeed
 def start():    
 
 
@@ -47,13 +47,13 @@ def start():
             i = f.read()
             f.close()
             os.kill(int(i),signal.SIGTERM)
-            print('Deamon stopped')
+            print('Daemon stopped')
         except Exception as err :
             print(err)
         sys.exit(0)
 
 
-    # try to start deamon 
+    # try to start daemon 
 
     try:
         pid = os.fork()
@@ -77,7 +77,7 @@ def start():
         del t
         sys.exit(0)
     else:
-        # C1  Child should try to start deamon
+        # C1  Child should try to start daemon
         os.setsid()
         os.chdir('.')
         os.umask(0)
@@ -104,16 +104,16 @@ def start():
                 try:
                     fcntl.lockf(fid, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 except IOError:
-                    sys.exit(3) # lock file already locked, so deamon was running early 
+                    sys.exit(3) # lock file already locked, so daemon was running early 
             sys.exit(1)
         else:
             #C2 set lock to lock file 
-            setattr(sys.modules['__main__'],'DEAMON_LOCK', None)
-            sys.modules['__main__'].DEAMON_LOCK = open(HOME_DIR + '/lock', 'w+')
+            setattr(sys.modules['__main__'],'DAEMON_LOCK', None)
+            sys.modules['__main__'].DAEMON_LOCK = open(HOME_DIR + '/lock', 'w+')
             try:
-                fcntl.lockf(sys.modules['__main__'].DEAMON_LOCK, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.lockf(sys.modules['__main__'].DAEMON_LOCK, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except IOError:
-                sys.stderr.write('[C2] Deamon already started.\n')
+                sys.stderr.write('Daemon already started.\n')
                 sys.exit(1)
 
             so = open('/dev/null', 'w')
@@ -164,15 +164,12 @@ def start():
 
                 # main logic
                 def kill_child():
-                    print('\033[13mDeamon Terminated\033[2m')
+                    print('\033[13mDaemon Terminated\033[2m')
                     os.system('kill %s' % pid)
-                # def kill_self(a,b):
-                #     print('\033[13mDeamon Terminated\033[2m')
-                #     os.system('kill %s' % pid)
-                #     sys.exit(0)
 
                 atexit.register(kill_child)
-                # signal.signal(signal.SIGTERM, kill_self)
+                time.sleep(0.5)
+                # here main program is contiune 
 
             else:
                 #C3 Start monitoring server

@@ -1,4 +1,4 @@
-import asyncio, sys, locale, curses, fcntl, os, socket, re
+import asyncio, sys, locale, curses, fcntl, os, socket, re, signal
 
 
 from .constants import *
@@ -43,9 +43,9 @@ class Terminal:
     def __del__(self):
         if self.curses_screen:
             self.restore_screen()
-        if self.fid_lock is not None:
-            self.fid_lock.close()
-        print('Terminal closed')
+        #if self.fid_lock is not None:
+        #    self.fid_lock.close()
+
 
 
     def excepthook_from_curses_mode(self, type, value, traceback):
@@ -227,19 +227,23 @@ class Terminal:
         fout = os.fdopen(sys.stdout.fileno(), 'wb')
         ferr = os.fdopen(sys.stdout.fileno(), 'wb')
         fin = os.fdopen(sys.stdin.fileno(), 'rb')
+        try:
+            stdout = socket.socket()
+            stdout.connect(('127.0.0.1',STD_OUT_PORT))
+            stderr = socket.socket()
+            stderr.connect(('127.0.0.1',STD_ERR_PORT))
+            logger = socket.socket()
+            logger.connect(('127.0.0.1',LOGGER_PORT))
+            stdin = socket.socket()
+            stdin.connect(('127.0.0.1',STD_IN_PORT))
+            set_nonblocking(stdout)
+            set_nonblocking(stderr)
+            set_nonblocking(stdin)
 
-        stdout = socket.socket()
-        stdout.connect(('127.0.0.1',STD_OUT_PORT))
-        stderr = socket.socket()
-        stderr.connect(('127.0.0.1',STD_ERR_PORT))
-        logger = socket.socket()
-        logger.connect(('127.0.0.1',LOGGER_PORT))
-        stdin = socket.socket()
-        stdin.connect(('127.0.0.1',STD_IN_PORT))
+        except:
+            self.loop.stop()
+            print("Can't connect to daemon [daemon already terminated or virtual console failed]")
 
-        set_nonblocking(stdout)
-        set_nonblocking(stderr)
-        set_nonblocking(stdin)
 
         def stdout_data_received():
             try:
@@ -257,6 +261,7 @@ class Terminal:
             except:
                 return
             if not data:
+                eof()
                 return                
             ferr.write(data)
             ferr.flush()
@@ -267,6 +272,7 @@ class Terminal:
             except:
                 return 
             if not data:
+                eof()
                 return                
             data = re.sub(b"\033\[\d+m", b"", data)
             c = b'\x1b[31;1m'
@@ -283,18 +289,40 @@ class Terminal:
             except:
                 return
             if not data:
+                eof()
                 return
-            stdin.send(b'>'+data)
+            if data == b'kill\n':
+                HOME_DIR = getattr(sys.modules['__main__'], 'HOME_DIR')
+                f = open(HOME_DIR +'/pid', 'r')
+                i = f.read()
+                f.close()
+                try:
+                    os.kill(int(i),signal.SIGTERM )
+                    print('Kill command sent to daemon')
+                except Exception as err:
+                    print('Kill command error: %s' % err)
+                return
+
+            stdin.send(data)
+
+        def eof():
+            self.loop.stop()
 
 
+        @asyncio.coroutine
+        def shutdown():
+            self.loop.stop()
 
-        self.loop.add_reader(stdout, stdout_data_received)
-        self.loop.add_reader(stderr, stderr_data_received)
-        self.loop.add_reader(logger, logger_data_received)
-        # newin = os.fdopen(sys.stdin.fileno(), 'r', 1)
+        try:
+            self.loop.add_reader(stdout, stdout_data_received)
+            self.loop.add_reader(stderr, stderr_data_received)
+            self.loop.add_reader(logger, logger_data_received)
+            # newin = os.fdopen(sys.stdin.fileno(), 'r', 1)
 
-        fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
-        self.loop.add_reader(sys.stdin, stdin_data_received)
+            fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
+            self.loop.add_reader(sys.stdin, stdin_data_received)
+        except:
+            asyncio.async(shutdown())
 
 
 
