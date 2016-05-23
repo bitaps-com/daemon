@@ -279,6 +279,9 @@ class Terminal:
             if data.find(b'[INFO]')+1 : c = b'\x1b[39;1m'
             if data.find(b'[ERROR]')+1 : c = b'\x1b[32;1m'
             if data.find(b'[DEBUG]')+1 : c = b'\x1b[32;1m'
+            if data.find(b'[DEBUG_I]')+1 : c = b'\x1b[36;1m'
+            if data.find(b'[DEBUG_II]')+1 : c = b'\x1b[35;1m'
+            if data.find(b'[DEBUG_III]')+1 : c = b'\x1b[34;1m'
             if data.find(b'[WARNING]')+1 : c = b'\x1b[33;1m'
             fout.write(c+data+ b'\x1b[0m')
             fout.flush()
