@@ -141,7 +141,6 @@ class Terminal:
         # TODO 
         # resize widget calculations 
         # at this moment only static size
-
         ts = os.get_terminal_size()
         self.screen_height, self.screen_width = ts.lines , ts.columns
         curses.resizeterm(self.screen_height, self.screen_width)
@@ -274,16 +273,19 @@ class Terminal:
             if not data:
                 eof()
                 return                
-            data = re.sub(b"\033\[\d+m", b"", data)
-            c = b'\x1b[31;1m'
-            if data.find(b'[INFO]')+1 : c = b'\x1b[39;1m'
-            if data.find(b'[ERROR]')+1 : c = b'\x1b[32;1m'
-            if data.find(b'[DEBUG]')+1 : c = b'\x1b[32;1m'
-            if data.find(b'[DEBUG_I]')+1 : c = b'\x1b[36;1m'
-            if data.find(b'[DEBUG_II]')+1 : c = b'\x1b[35;1m'
-            if data.find(b'[DEBUG_III]')+1 : c = b'\x1b[34;1m'
-            if data.find(b'[WARNING]')+1 : c = b'\x1b[33;1m'
-            fout.write(c+data+ b'\x1b[0m')
+            data_list = re.sub(b"\033\[\d+m", b"", data).split(b'\n')
+            for data in data_list:
+                c = b'\x1b[31;1m'
+                if data.find(b'[INFO]')+1 : c = b'\x1b[39;1m'
+                if data.find(b'[ERROR]')+1 : c = b'\x1b[31;1m'
+                if data.find(b'[CRITICAL]')+1 : c = b'\x1b[31;1m'
+                if data.find(b'[DEBUG]')+1 : c = b'\x1b[32;1m'
+                if data.find(b'[DEBUG_I]')+1 : c = b'\x1b[36;1m'
+                if data.find(b'[DEBUG_II]')+1 : c = b'\x1b[35;1m'
+                if data.find(b'[DEBUG_III]')+1 : c = b'\x1b[34;1m'
+                if data.find(b'[WARNING]')+1 : c = b'\x1b[33;1m'
+                if data:
+                    fout.write(c+data+ b'\x1b[0m\n')
             fout.flush()
 
         def stdin_data_received():
