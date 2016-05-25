@@ -21,8 +21,9 @@ def set_nonblocking(file_handle):
 
 class Terminal:
 
-    def __init__(self, ):
+    def __init__(self, split_height = 0.5):
         self.fid_lock = None
+        self.split_height = split_height
         self.name = 'test'
         self.loop = asyncio.get_event_loop()
         self.widget = []
@@ -219,7 +220,7 @@ class Terminal:
 
     def add(self, widget_class):
 
-        self.widget.append(widget_class(self))
+        self.widget.append(widget_class(self, self.split_height))
         return self
 
     def simple_mode(self):
@@ -310,7 +311,7 @@ class Terminal:
 
             stdin.send(data)
         def signal_handler(signal, frame):
-            print("\nTerminal disconected from daemon")
+            print("\nTerminal disconnected from daemon")
             self.loop.stop()
 
         def eof():

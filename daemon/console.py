@@ -19,7 +19,7 @@ class Console:
     start_error = []
 
 
-    def __init__(self, terminal):
+    def __init__(self, terminal, split_height = 0.5):
         self.control = {
                     "<UP>": self.cursor_up_down_esc,
                     "<SHIFT+UP>": self.scroll_up,
@@ -43,7 +43,7 @@ class Console:
         self.terminal = terminal
         self.width, self.height = os.get_terminal_size()
         for widget in self.terminal.widget:
-            widget.height = math.floor(widget.height * (1 - 0.5))
+            widget.height = math.floor(widget.height * (1 - split_height))
             self.widget_heights += widget.height
         self.height = self.height - self.widget_heights
 

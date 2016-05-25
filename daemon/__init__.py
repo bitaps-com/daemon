@@ -18,9 +18,9 @@ except:
     
 # parsing arguments
 # todo daemon stop argument wait unitl process stopeed
-def start():    
+def start(split_height = 0.5,terminal = 0):    
 
-
+    TERMINAL = terminal
     try:
         HOME_DIR = getattr(sys.modules['__main__'], 'HOME_DIR')
     except:
@@ -31,10 +31,6 @@ def start():
             os.makedirs(HOME_DIR,755)
         setattr(sys.modules['__main__'],'HOME_DIR', HOME_DIR)
 
-
-
-
-    TERMINAL = 0
     if '--terminal' in sys.argv:
         TERMINAL = 1
 
@@ -73,7 +69,7 @@ def start():
             t = Terminal().start()
         if TERMINAL == 2:
             print('Start extra terminal')
-            t = Terminal().add(LogWin).add(Console).start()
+            t = Terminal(split_height).add(LogWin).add(Console).start()
         del t
         sys.exit(0)
     else:

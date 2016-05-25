@@ -14,11 +14,11 @@ class LogWin:
     widget_heights = 0
     task = None
 
-    def __init__(self, terminal):
+    def __init__(self, terminal, split_height = 0.5):
         self.width, self.height = os.get_terminal_size()
         self.terminal = terminal
         for widget in self.terminal.widget:
-            widget.height = math.floor(widget.height * (1 - 0.5))
+            widget.height = math.floor(widget.height * (1 - split_height))
             self.widget_heights += widget.height
         self.height = self.height - self.widget_heights
         self.control = {
