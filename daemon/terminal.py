@@ -21,12 +21,16 @@ def set_nonblocking(file_handle):
 
 class Terminal:
 
-    def __init__(self, split_height = 0.5):
+    def __init__(self, split_height, stdout_port, stderr_port, logger_port, stdin_port):
         self.fid_lock = None
         self.split_height = split_height
         self.name = 'test'
         self.loop = asyncio.get_event_loop()
         self.widget = []
+        self.stdout_port = stdout_port
+        self.stderr_port = stderr_port
+        self.logger_port = logger_port
+        self.stdin_port = stdin_port
         self.active_widget = None
         self.curses_screen = False
         self.y_size_base = 0
@@ -220,29 +224,32 @@ class Terminal:
 
     def add(self, widget_class):
 
-        self.widget.append(widget_class(self, self.split_height))
+        self.widget.append(widget_class(self, self.split_height, 
+                           self.stdout_port, self.stderr_port, 
+                           self.logger_port, self.stdin_port))
         return self
 
     def simple_mode(self):
         fout = os.fdopen(sys.stdout.fileno(), 'wb')
         ferr = os.fdopen(sys.stdout.fileno(), 'wb')
         fin = os.fdopen(sys.stdin.fileno(), 'rb')
-        try:
-            stdout = socket.socket()
-            stdout.connect(('127.0.0.1',STD_OUT_PORT))
-            stderr = socket.socket()
-            stderr.connect(('127.0.0.1',STD_ERR_PORT))
-            logger = socket.socket()
-            logger.connect(('127.0.0.1',LOGGER_PORT))
-            stdin = socket.socket()
-            stdin.connect(('127.0.0.1',STD_IN_PORT))
-            set_nonblocking(stdout)
-            set_nonblocking(stderr)
-            set_nonblocking(stdin)
+        # try:
+        stdout = socket.socket()
+        stdout.connect(('127.0.0.1',self.stdout_port))
+        stderr = socket.socket()
+        stderr.connect(('127.0.0.1',self.stderr_port))
+        logger = socket.socket()
+        logger.connect(('127.0.0.1',self.logger_port))
+        stdin = socket.socket()
+        stdin.connect(('127.0.0.1',self.stdin_port))
+        set_nonblocking(stdout)
+        set_nonblocking(stderr)
+        set_nonblocking(stdin)
 
-        except:
-            self.loop.stop()
-            print("Can't connect to daemon [daemon already terminated or virtual console failed]")
+        # except Exception as err:
+        #     print(err)
+        #     self.loop.stop()
+        #     print("Can't connect to daemon [daemon already terminated or virtual console failed]")
 
 
         def stdout_data_received():

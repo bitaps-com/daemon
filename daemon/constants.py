@@ -2,11 +2,13 @@ import locale
 
 PATH = ''
 
+ 
+
 
 CRITICAL = 60
 FATAL = 50
 ERROR = 40
-WARNING = 30 
+WARNING = 30
 WARN = WARNING
 INFO = 20
 DEBUG = 10
@@ -16,27 +18,19 @@ DEBUGIII = 4
 NOTSET = 0
 
 LEVEL_NAMES = {
-    60  :'CRITICAL' ,   # black
-    50  :'FATAL'    ,    # red
-    40  :'ERROR'   ,    # green
-    30  :'WARNING',    # yellow
-    20  :'INFO'   ,    # blue
-    10  :'DEBUG',    # magenta
-    8  :'DEBUG_I' ,    # cyan
-    6  :'DEBUG_II' ,    # white
-    4  :'DEBUG_III',    # default
-    0  :'NOTSET',    # default
+    60: 'CRITICAL',    # black
+    50: 'FATAL',       # red
+    40: 'ERROR',       # green
+    30: 'WARNING',     # yellow
+    20: 'INFO',        # blue
+    10: 'DEBUG',       # magenta
+    8: 'DEBUG_I',      # cyan
+    6: 'DEBUG_II',     # white
+    4: 'DEBUG_III',    # default
+    0: 'NOTSET',       # default
 }
 
 
-
-
-
-
-STD_OUT_PORT =8888
-STD_ERR_PORT =8889
-LOGGER_PORT  =8890
-STD_IN_PORT  =8891
 
 ATERM_CONSOLE_COMMANDS = None
 LOG_DISPLAY_WRITER = False
@@ -84,18 +78,17 @@ L_THREADNAME = GRAY
 
 
 LEVEL_COLORS = {
-            0:  L_MSG_FATAL,
-            4:  L_MSG_DEBUG,
-            6:  L_MSG_DEBUG,
-            8:  L_MSG_DEBUG,
-            10: L_MSG_DEBUG,
-            20: L_MSG_INFO,
-            30: L_MSG_WARNING,
-            40: L_MSG_ERROR,
-            50: L_MSG_CRITICAL,
-            60: L_MSG_CRITICAL,
-        }
-
+    0:  L_MSG_FATAL,
+    4:  L_MSG_DEBUG,
+    6:  L_MSG_DEBUG,
+    8:  L_MSG_DEBUG,
+    10: L_MSG_DEBUG,
+    20: L_MSG_INFO,
+    30: L_MSG_WARNING,
+    40: L_MSG_ERROR,
+    50: L_MSG_CRITICAL,
+    60: L_MSG_CRITICAL,
+}
 
 
 ENCODING = locale.getpreferredencoding() or sys.getdefaultencoding()
@@ -115,15 +108,16 @@ FOREGROUND_COLOR_CODES = {
 }
 
 TCL = {
-    'black':   '\033[30m',    # black
-    'red':     '\033[31m',    # red
-    'green':   '\033[32m',    # green
-    'yellow':  '\033[33m',    # yellow
-    'blue':    '\033[34m',    # blue
-    'magenta': '\033[35m',    # magenta
-    'cyan':    '\033[36m',    # cyan
-    'white':   '\033[37m',    # white
-    'default': '\033[39m',    # default
+    'gray':   '\033[11m',    # black
+    'red':     '\033[12m',    # red
+    'pink':     '\033[13m',    # red
+    'green':   '\033[5m',    # green
+    'yellow':  '\033[6m',    # yellow
+    'blue':    '\033[7m',    # blue
+    'magenta': '\033[8m',    # magenta
+    'cyan':    '\033[9m',    # cyan
+    'white':   '\033[10m',    # white
+    'default': '\033[2m',    # default
 }
 
 BACKGROUND_COLOR_CODES = {
@@ -230,4 +224,3 @@ KEY_NAMES = {
 
 MAX_KEYPRESS_SIZE = max(len(seq) for seq in list(KEY_NAMES.keys()))
 READ_SIZE = 512
-

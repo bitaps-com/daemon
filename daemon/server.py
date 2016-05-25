@@ -12,7 +12,7 @@ def set_nonblocking(file_handle):
 
 
 class Server:
-    def __init__(self, o, e, l, i):
+    def __init__(self, o, e, l, i, stdout_port, stderr_port, logger_port, stdin_port):
         self.socket_stdout = []
         self.socket_logger = []
         self.socket_stderr = []
@@ -24,10 +24,10 @@ class Server:
         set_nonblocking(self.l)
         set_nonblocking(self.e)
         self.loop          = asyncio.get_event_loop()
-        stdout_port        = asyncio.start_server(self.handle_stdout, '127.0.0.1', STD_OUT_PORT)
-        logger_port        = asyncio.start_server(self.handle_logger, '127.0.0.1', LOGGER_PORT)
-        stderr_port        = asyncio.start_server(self.handle_stderr, '127.0.0.1', STD_ERR_PORT)
-        stdin_port         = asyncio.start_server(self.handle_stdin, '127.0.0.1', STD_IN_PORT)
+        stdout_port        = asyncio.start_server(self.handle_stdout, '127.0.0.1', stdout_port)
+        logger_port        = asyncio.start_server(self.handle_logger, '127.0.0.1', logger_port)
+        stderr_port        = asyncio.start_server(self.handle_stderr, '127.0.0.1', stderr_port)
+        stdin_port         = asyncio.start_server(self.handle_stdin, '127.0.0.1', stdin_port)
         self.loop.add_reader(self.o, self.stdout_data_received)
         self.loop.add_reader(self.l, self.logger_data_received)
         self.loop.add_reader(self.e, self.stderr_data_received)

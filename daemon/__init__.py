@@ -15,10 +15,15 @@ try:
     getattr(sys.modules['__main__'], 'LOGGER_PIPE')
 except:
     setattr(sys.modules['__main__'],'LOGGER_PIPE', None)
-    
+
+
 # parsing arguments
 # todo daemon stop argument wait unitl process stopeed
-def start(split_height = 0.5,terminal = 0):    
+def start(split_height = 0.5,terminal = 0, stdout_port = 8888, 
+          stderr_port = 8889,
+          logger_port = 8890,
+          stdin_port =  8891
+         ):    
 
     TERMINAL = terminal
     try:
@@ -50,7 +55,7 @@ def start(split_height = 0.5,terminal = 0):
 
 
     # try to start daemon 
-
+    # os.unlink(HOME_DIR+ '/pid_monitoring')
     try:
         pid = os.fork()
     except OSError as e:
@@ -66,10 +71,10 @@ def start(split_height = 0.5,terminal = 0):
             sys.exit(0)
         if TERMINAL == 1:
             print('Start simple terminal')
-            t = Terminal().start()
+            t = Terminal(split_height, stdout_port, stderr_port, logger_port, stdin_port).start()
         if TERMINAL == 2:
             print('Start extra terminal')
-            t = Terminal(split_height).add(LogWin).add(Console).start()
+            t = Terminal(split_height, stdout_port, stderr_port, logger_port, stdin_port).add(LogWin).add(Console).start()
         del t
         sys.exit(0)
     else:
@@ -131,6 +136,7 @@ def start(split_height = 0.5,terminal = 0):
                 sys.exit(1)
             if pid > 0:
                 #P3 Start main program
+
                 try:
                     f = open(HOME_DIR+ '/pid', 'w+')
                     f.write(str(os.getpid()))
@@ -164,9 +170,8 @@ def start(split_height = 0.5,terminal = 0):
                     os.system('kill %s' % pid)
 
                 atexit.register(kill_child)
-                time.sleep(0.5)
                 # here main program is contiune 
-
+                time.sleep(0.5)
             else:
                 #C3 Start monitoring server
                 try:
@@ -195,6 +200,6 @@ def start(split_height = 0.5,terminal = 0):
                 e = os.fdopen(_stderr_reader,'rb')
                 i = os.fdopen(_stdin_writer,'wb')
 
-                Server(o, e, l, i)
+                Server(o, e, l, i, stdout_port, stderr_port, logger_port, stdin_port)
                 sys.exit(0)
 

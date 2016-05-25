@@ -19,7 +19,10 @@ class Console:
     start_error = []
 
 
-    def __init__(self, terminal, split_height = 0.5):
+    def __init__(self, terminal, split_height, stdout_port, stderr_port, logger_port, stdin_port):
+        self.stdin_port = stdin_port
+        self.stderr_port = stderr_port
+        self.stdout_port = stdout_port
         self.control = {
                     "<UP>": self.cursor_up_down_esc,
                     "<SHIFT+UP>": self.scroll_up,
@@ -119,7 +122,7 @@ class Console:
     @asyncio.coroutine
     def logger_received(self):
         try:
-            reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', LOGGER_PORT), 10)
+            reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', self.logger_port), 10)
         except:
             self.shutdown()
             print('''Can't connect to Logger Server''')
@@ -146,7 +149,7 @@ class Console:
     @asyncio.coroutine
     def stdout_data_received(self):
         try:
-            reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', STD_OUT_PORT), 10)
+            reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', self.stdout_port), 10)
         except:
             self.start_error.append('Cant connect to Logger Server')
         while True:
@@ -162,7 +165,7 @@ class Console:
     @asyncio.coroutine
     def stderr_data_received(self):
         try:
-            reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', STD_ERR_PORT), 10)
+            reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', self.stderr_port), 10)
         except:
             self.start_error.append('Cant connect to Logger Server')
         while True:
@@ -240,7 +243,7 @@ class Console:
             return
 
         try:
-            reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', STD_IN_PORT), 10)
+            reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', self.stdin_port), 10)
             writer.write(cmd.encode()+b'\n')
             writer.close()
             return None

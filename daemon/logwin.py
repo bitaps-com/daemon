@@ -14,8 +14,9 @@ class LogWin:
     widget_heights = 0
     task = None
 
-    def __init__(self, terminal, split_height = 0.5):
+    def __init__(self, terminal, split_height, stdout_port, stderr_port, logger_port, stdin_port):
         self.width, self.height = os.get_terminal_size()
+        self.logger_port = logger_port
         self.terminal = terminal
         for widget in self.terminal.widget:
             widget.height = math.floor(widget.height * (1 - split_height))
@@ -83,7 +84,7 @@ class LogWin:
     @asyncio.coroutine
     def logger_received(self):
 
-        reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', LOGGER_PORT), 10)
+        reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', self.logger_port), 10)
         while True:
             try:
                 data = yield from reader.readline()
