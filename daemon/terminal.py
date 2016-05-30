@@ -83,6 +83,7 @@ class Terminal:
         key_name = None
         while True:
             try:
+
                 key_name = self.decode_key_from_buffer()
                 if key_name is not None:
                     return key_name

@@ -65,6 +65,9 @@ class Server:
         if not data:
             self.loop.stop()
             return 
+        f = open('console.log','a+')
+        f.write(data.decode())
+        f.close()
         for socket in self.socket_stdout:
             try:
                 socket.send(data)

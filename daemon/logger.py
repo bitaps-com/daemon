@@ -54,7 +54,7 @@ class Logger:
             self.log_file_name = path
             
     def sigpipe_handler(self,a, b):
-        self.loop.stop()
+        pass
 
 
 

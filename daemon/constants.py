@@ -153,6 +153,8 @@ KEY_NAMES = {
     b'\x1B[5C':     '<CTRL+RIGHT>',
     b'\x1B[5D':     '<CTRL+LEFT>',
     b'\x1B[1;2A':   '<SHIFT+UP>',
+    b'\x1b[5~':     '<SHIFT+UP>',
+    b'\x1b[6~':     '<SHIFT+DOWN>',
     b'\x1B[1;2B':   '<SHIFT+DOWN>',
     b'\x1B[1;2C':   '<SHIFT+RIGHT>',
     b'\x1B[1;2D':   '<SHIFT+LEFT>',
