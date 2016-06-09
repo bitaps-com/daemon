@@ -3,7 +3,15 @@ import locale
 PATH = ''
 
  
-
+SAQUA = '\x1b[36;1m'
+SDEFCOL = '\x1b[0m'
+SWHITE = '\x1b[39;1m'
+SGREEN = '\x1b[32;1m'
+SRED = '\x1b[31;1m'
+SGREY = '\x1b[30;1m'
+SYELLOW = '\x1b[33;1m'
+SBLUE = '\x1b[34;1m'
+SCYAN = '\x1b[35;1m' 
 
 CRITICAL = 60
 FATAL = 50
@@ -77,6 +85,20 @@ L_THREAD = GRAY
 L_THREADNAME = GRAY
 
 
+S_LEVEL_COLORS = {
+    0:  SRED,
+    4:  SBLUE,
+    6:  SCYAN,
+    8:  SAQUA,
+    10: SGREEN,
+    20: SWHITE,
+    30: SYELLOW,
+    40: SRED,
+    50: SRED,
+    60: SRED,
+}
+
+
 LEVEL_COLORS = {
     0:  L_MSG_FATAL,
     4:  L_MSG_DEBUG,
@@ -89,7 +111,6 @@ LEVEL_COLORS = {
     50: L_MSG_CRITICAL,
     60: L_MSG_CRITICAL,
 }
-
 
 ENCODING = locale.getpreferredencoding() or sys.getdefaultencoding()
 MASTER_KEYS = ['<BTAB>']

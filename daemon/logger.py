@@ -12,7 +12,7 @@ except:
 
 HOME_DIR  =  ''
 
-def getLogger(name, file = True,path = None, visible = True,level = NOTSET):
+def getLogger(name, file = True,path = None, visible = True,level = NOTSET, simple_color = False):
     try:
         getattr(sys.modules['__main__'], 'LOGGER_DICT')
     except:
@@ -25,7 +25,7 @@ def getLogger(name, file = True,path = None, visible = True,level = NOTSET):
             pass        
     logger_dict = getattr(sys.modules['__main__'], 'LOGGER_DICT')
     if name not in logger_dict:
-        logger_dict[name] = Logger(name,path = path, level = level)
+        logger_dict[name] = Logger(name,path = path, level = level, simple_color = simple_color)
     return logger_dict[name]
 
 def removeLogger(name):
@@ -42,13 +42,15 @@ class Logger:
     log_file_name   = None
     socket          = sys.stdout
     level           = NOTSET
+    simple_color    = False
 
 
-    def __init__(self, name='root', path = None,visible = True, level = NOTSET):
+    def __init__(self, name='root', path = None,visible = True, level = NOTSET, simple_color = False):
         # setattr(sys.modules['__main__'],'LOGGER_PIPE', os.fdopen(_logger_writer,'wb'))
         self.level = level
         self.name = name
         self.socket_relay = visible
+        self.simple_color = simple_color
         signal.signal(signal.SIGPIPE, self.sigpipe_handler)
         if path:
             self.log_file_name = path
@@ -66,7 +68,11 @@ class Logger:
             # if message[-1:]!='\n':
             # message += '\n'
             m =  re.sub("\033\[\d+m", "", message)
-            self.write_to_file(('%s [%s]: %s' % (int(time.time()),LEVEL_NAMES[level],m)).encode()) 
+            if self.simple_color:
+                s = '%s%s%s[%s]: %s%s%s' % (SBLUE, int(time.time()), SGREY,LEVEL_NAMES[level],S_LEVEL_COLORS[level],message, SDEFCOL)
+            else:
+                s = '%s [%s]: %s' % (int(time.time()),LEVEL_NAMES[level],m)
+            self.write_to_file(s.encode()) 
         # if self.socket_relay:
         if True:
             if sys.modules['__main__'].LOGGER_PIPE is not None:
@@ -78,6 +84,9 @@ class Logger:
                 self.write(self.raw_buffer)
                 # if len(self.raw_buffer) > self.BUFFER_LIMIT:
                 #     self.raw_buffer[:len(self.raw_buffer)-self.BUFFER_LIMIT] = []
+            elif self.simple_color:
+                s = '%s%s%s[%s]: %s%s%s' % (SBLUE, self.name, SGREY,LEVEL_NAMES[level],S_LEVEL_COLORS[level],message, SDEFCOL)
+                print(s) 
             else:
                 print('%s [%s]: %s' % (int(time.time()),LEVEL_NAMES[level],message)) 
 
