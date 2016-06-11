@@ -86,9 +86,9 @@ class Logger:
                 #     self.raw_buffer[:len(self.raw_buffer)-self.BUFFER_LIMIT] = []
             elif self.simple_color:
                 s = '%s%s%s[%s]: %s%s%s' % (SBLUE, self.name, SGREY,LEVEL_NAMES[level],S_LEVEL_COLORS[level],message, SDEFCOL)
-                print(s) 
+                print(s,end="") 
             else:
-                print('%s [%s]: %s' % (int(time.time()),LEVEL_NAMES[level],message)) 
+                print('%s [%s]: %s' % (int(time.time()),LEVEL_NAMES[level],message), end="") 
 
     def setLevel(self,level):
         self.level = level
