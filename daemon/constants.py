@@ -1,8 +1,7 @@
 import locale
+import sys
 
 PATH = ''
-
- 
 SAQUA = '\x1b[36;1m'
 SDEFCOL = '\x1b[0m'
 SWHITE = '\x1b[39;1m'
@@ -11,7 +10,7 @@ SRED = '\x1b[31;1m'
 SGREY = '\x1b[30;1m'
 SYELLOW = '\x1b[33;1m'
 SBLUE = '\x1b[34;1m'
-SCYAN = '\x1b[35;1m' 
+SCYAN = '\x1b[35;1m'
 
 CRITICAL = 60
 FATAL = 50
@@ -37,7 +36,6 @@ LEVEL_NAMES = {
     4: 'DEBUG_III',    # default
     0: 'NOTSET',       # default
 }
-
 
 
 ATERM_CONSOLE_COMMANDS = None
@@ -86,10 +84,10 @@ L_THREADNAME = GRAY
 
 
 S_LEVEL_COLORS = {
-    0:  SRED,
-    4:  SBLUE,
-    6:  SCYAN,
-    8:  SAQUA,
+    0: SRED,
+    4: SBLUE,
+    6: SCYAN,
+    8: SAQUA,
     10: SGREEN,
     20: SWHITE,
     30: SYELLOW,
@@ -100,10 +98,10 @@ S_LEVEL_COLORS = {
 
 
 LEVEL_COLORS = {
-    0:  L_MSG_FATAL,
-    4:  L_MSG_DEBUG,
-    6:  L_MSG_DEBUG,
-    8:  L_MSG_DEBUG,
+    0: L_MSG_FATAL,
+    4: L_MSG_DEBUG,
+    6: L_MSG_DEBUG,
+    8: L_MSG_DEBUG,
     10: L_MSG_DEBUG,
     20: L_MSG_INFO,
     30: L_MSG_WARNING,
@@ -129,16 +127,16 @@ FOREGROUND_COLOR_CODES = {
 }
 
 TCL = {
-    'gray':   '\033[11m',    # black
-    'red':     '\033[12m',    # red
-    'pink':     '\033[13m',    # red
-    'green':   '\033[5m',    # green
-    'yellow':  '\033[6m',    # yellow
-    'blue':    '\033[7m',    # blue
-    'magenta': '\033[8m',    # magenta
-    'cyan':    '\033[9m',    # cyan
-    'white':   '\033[10m',    # white
-    'default': '\033[2m',    # default
+    'gray': '\033[11m',    # black
+    'red': '\033[12m',     # red
+    'pink': '\033[13m',    # red
+    'green': '\033[5m',    # green
+    'yellow': '\033[6m',   # yellow
+    'blue': '\033[7m',     # blue
+    'magenta': '\033[8m',  # magenta
+    'cyan': '\033[9m',     # cyan
+    'white': '\033[10m',   # white
+    'default': '\033[2m',  # default
 }
 
 BACKGROUND_COLOR_CODES = {

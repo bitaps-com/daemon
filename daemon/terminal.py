@@ -1,14 +1,19 @@
-import asyncio, sys, locale, curses, fcntl, os, socket, re, signal
-
-
+import asyncio
+import sys
+import locale
+import curses
+import fcntl
+import os
+import socket
+import re
+import signal
 from .constants import *
 from .console import *
 
 
-
-
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
+
 
 def set_nonblocking(file_handle):
     """Make a file_handle non-blocking."""
@@ -17,11 +22,9 @@ def set_nonblocking(file_handle):
     fcntl.fcntl(file_handle, fcntl.F_SETFL, nflags)
 
 
-
-
 class Terminal:
-
-    def __init__(self, split_height, stdout_port, stderr_port, logger_port, stdin_port):
+    def __init__(self, split_height, stdout_port,
+                 stderr_port, logger_port, stdin_port):
         self.fid_lock = None
         self.split_height = split_height
         self.name = 'test'
@@ -43,24 +46,15 @@ class Terminal:
         self.hook_stdin_stream()
         self.loop.add_signal_handler(28, self.resize)
         self.width, self.height = os.get_terminal_size()
-        
 
     def __del__(self):
         if self.curses_screen:
             self.restore_screen()
-        #if self.fid_lock is not None:
-        #    self.fid_lock.close()
-
-
 
     def excepthook_from_curses_mode(self, type, value, traceback):
         curses.nocbreak()
         curses.echo()
         curses.endwin()
-        #sys.stdout.buffer.write(b'\033[31m--- Last stderr Record ---\033[0m\n')
-        #sys.stdout.buffer.write(LAST_ERR + b'\033[1;0m')
-        #print('\033[31m--- Except Hook ---\033[0m')
-        #sys.__excepthook__(type, value, traceback)
 
     def hook_stdin_stream(self):
         self.stdin_data_receved = asyncio.Event()
@@ -91,7 +85,7 @@ class Terminal:
                 if len(key) == 0:
                     raise
                 self.stdin_buffer = self.stdin_buffer + key
-            except:
+            except Exception:
                 yield from self.stdin_data_receved.wait()
                 self.stdin_data_receved.clear()
 
@@ -99,20 +93,15 @@ class Terminal:
     def process_key(self, key):
         if self.active_widget is None:
             return info("No active widget")
-        # try:
         yield from self.widget[self.active_widget].process_key(key)
-        # except Exception as err:
-            # print(err)
 
     @asyncio.coroutine
     def change_active_widget(self):
         yield from self.widget[self.active_widget].set_inactive()
         self.active_widget += 1
-        if self.active_widget > (len(self.widget)-1):
+        if self.active_widget > (len(self.widget) - 1):
             self.active_widget = 0
         yield from self.widget[self.active_widget].set_active()
-
-
 
     def decode_key_from_buffer(self):
         if len(self.stdin_buffer) == 0:
@@ -134,7 +123,7 @@ class Terminal:
                 key = key.decode(ENCODING)
                 self.stdin_buffer = self.stdin_buffer[ln:]
                 return key
-            except:
+            except Exception:
                 pass
             ln += 1
             if ln > MAX_KEYPRESS_SIZE or ln > buffer_len:
@@ -144,11 +133,12 @@ class Terminal:
         return None
 
     def resize(self):
-        # TODO 
-        # resize widget calculations 
+        # TODO
+        # resize widget calculations
         # at this moment only static size
         ts = os.get_terminal_size()
-        self.screen_height, self.screen_width = ts.lines , ts.columns
+        self.screen_height = ts.lines
+        self.screen_width = ts.columns
         curses.resizeterm(self.screen_height, self.screen_width)
         self.width, self.height = os.get_terminal_size()
         self.screen.clear()
@@ -156,19 +146,11 @@ class Terminal:
         curses.curs_set(0)
         self.screen.refresh()
         # recalculate all widget size widget by widget
-
-
         self.widget[0].rh = math.floor(self.height * (1 - 0.5))
-        # self.widget[0].rh = self.height 
-        self.widget[1].rh = self.height - self.widget[0].rh 
-        self.widget[1].widget_heights =  self.widget[0].rh
+        self.widget[1].rh = self.height - self.widget[0].rh
+        self.widget[1].widget_heights = self.widget[0].rh
         for w in self.widget:
-            # try:
             w.resize()
-            # except:
-            #     pass
-        
-                
 
     def init_screen(self):
         TERM = os.environ['TERM']
@@ -201,9 +183,8 @@ class Terminal:
                 curses.init_pair(GRAY, 241, PANEL_BACKGROUND)
                 curses.init_pair(ALERT, 1, PANEL_BACKGROUND)
                 curses.init_pair(ACTIVE_HEADER, 11, 238)
-                curses.init_pair(PINK,  204, PANEL_BACKGROUND)
-                curses.init_pair(CONSOLE_PANEL,  204, CONSOLE_PANEL_BACKGROUND)
-
+                curses.init_pair(PINK, 204, PANEL_BACKGROUND)
+                curses.init_pair(CONSOLE_PANEL, 204, CONSOLE_PANEL_BACKGROUND)
             else:
                 curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
                 curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLACK)
@@ -222,11 +203,9 @@ class Terminal:
         curses.echo()
         curses.endwin()
 
-
     def add(self, widget_class):
-
-        self.widget.append(widget_class(self, self.split_height, 
-                           self.stdout_port, self.stderr_port, 
+        self.widget.append(widget_class(self, self.split_height,
+                           self.stdout_port, self.stderr_port,
                            self.logger_port, self.stdin_port))
         return self
 
@@ -236,95 +215,101 @@ class Terminal:
         fin = os.fdopen(sys.stdin.fileno(), 'rb')
         # try:
         stdout = socket.socket()
-        stdout.connect(('127.0.0.1',self.stdout_port))
+        stdout.connect(('127.0.0.1', self.stdout_port))
         stderr = socket.socket()
-        stderr.connect(('127.0.0.1',self.stderr_port))
+        stderr.connect(('127.0.0.1', self.stderr_port))
         logger = socket.socket()
-        logger.connect(('127.0.0.1',self.logger_port))
+        logger.connect(('127.0.0.1', self.logger_port))
         stdin = socket.socket()
-        stdin.connect(('127.0.0.1',self.stdin_port))
+        stdin.connect(('127.0.0.1', self.stdin_port))
         set_nonblocking(stdout)
         set_nonblocking(stderr)
         set_nonblocking(stdin)
-
         # except Exception as err:
         #     print(err)
         #     self.loop.stop()
-        #     print("Can't connect to daemon [daemon already terminated or virtual console failed]")
-
+        #     print("Can't connect to daemon [daemon already
+        #      terminated or virtual console failed]")
 
         def stdout_data_received():
             try:
                 data = os.read(stdout.fileno(), 4096)
-            except:
+            except Exception:
                 return
             if not data:
-                return                
+                return
             fout.write(data)
             fout.flush()
 
         def stderr_data_received():
             try:
                 data = os.read(stderr.fileno(), 4096)
-            except:
+            except Exception:
                 return
             if not data:
                 eof()
-                return                
+                return
             ferr.write(data)
             ferr.flush()
 
         def logger_data_received():
             try:
                 data = os.read(logger.fileno(), 4096)
-            except:
-                return 
+            except Exception:
+                return
             if not data:
                 eof()
-                return                
+                return
             data_list = re.sub(b"\033\[\d+m", b"", data).split(b'\n')
             for data in data_list:
                 c = b'\x1b[31;1m'
-                if data.find(b'[INFO]')+1 : c = b'\x1b[39;1m'
-                if data.find(b'[ERROR]')+1 : c = b'\x1b[31;1m'
-                if data.find(b'[CRITICAL]')+1 : c = b'\x1b[31;1m'
-                if data.find(b'[DEBUG]')+1 : c = b'\x1b[32;1m'
-                if data.find(b'[DEBUG_I]')+1 : c = b'\x1b[36;1m'
-                if data.find(b'[DEBUG_II]')+1 : c = b'\x1b[35;1m'
-                if data.find(b'[DEBUG_III]')+1 : c = b'\x1b[34;1m'
-                if data.find(b'[WARNING]')+1 : c = b'\x1b[33;1m'
+                if data.find(b'[INFO]') + 1:
+                    c = b'\x1b[39;1m'
+                if data.find(b'[ERROR]') + 1:
+                    c = b'\x1b[31;1m'
+                if data.find(b'[CRITICAL]') + 1:
+                    c = b'\x1b[31;1m'
+                if data.find(b'[DEBUG]') + 1:
+                    c = b'\x1b[32;1m'
+                if data.find(b'[DEBUG_I]') + 1:
+                    c = b'\x1b[36;1m'
+                if data.find(b'[DEBUG_II]') + 1:
+                    c = b'\x1b[35;1m'
+                if data.find(b'[DEBUG_III]') + 1:
+                    c = b'\x1b[34;1m'
+                if data.find(b'[WARNING]') + 1:
+                    c = b'\x1b[33;1m'
                 if data:
-                    fout.write(c+data+ b'\x1b[0m\n')
+                    fout.write(c + data + b'\x1b[0m\n')
             fout.flush()
 
         def stdin_data_received():
             try:
                 data = os.read(fin.fileno(), 4096)
-            except:
+            except Exception:
                 return
             if not data:
                 eof()
                 return
             if data == b'kill\n':
                 HOME_DIR = getattr(sys.modules['__main__'], 'HOME_DIR')
-                f = open(HOME_DIR +'/pid', 'r')
+                f = open(HOME_DIR + '/pid', 'r')
                 i = f.read()
                 f.close()
                 try:
-                    os.kill(int(i),signal.SIGTERM )
+                    os.kill(int(i), signal.SIGTERM)
                     print('Kill command sent to daemon')
                 except Exception as err:
                     print('Kill command error: %s' % err)
                 return
-
             stdin.send(data)
+
         def signal_handler(signal, frame):
             print("\nTerminal disconnected from daemon")
             self.loop.stop()
 
         def eof():
             self.loop.stop()
-
 
         @asyncio.coroutine
         def shutdown():
@@ -335,23 +320,20 @@ class Terminal:
             self.loop.add_reader(stderr, stderr_data_received)
             self.loop.add_reader(logger, logger_data_received)
             # newin = os.fdopen(sys.stdin.fileno(), 'r', 1)
-
             fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
             self.loop.add_reader(sys.stdin, stdin_data_received)
-        except:
+        except Exception:
             asyncio.async(shutdown())
 
-
-
     def start(self):
-        if  self.widget:
+        if self.widget:
             if not self.curses_screen:
                 self._excepthook = sys.excepthook
                 sys.excepthook = self.excepthook_from_curses_mode
                 self.curses_screen = True
                 self.init_screen()
                 self.hook_stdin_stream()
-            self.active_widget = len(self.widget)-1
+            self.active_widget = len(self.widget) - 1
             self.widget[self.active_widget].active = True
             asyncio.async(self.stdin_reader())
             for widget in self.widget:
@@ -361,4 +343,3 @@ class Terminal:
         self.loop.run_forever()
         self.loop.close()
         return self
-   

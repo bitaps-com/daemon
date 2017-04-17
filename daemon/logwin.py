@@ -5,6 +5,7 @@ import math
 
 from .constants import *
 
+
 class LogWin:
     display_limit = 1000
     top = 0
@@ -14,7 +15,8 @@ class LogWin:
     widget_heights = 0
     task = None
 
-    def __init__(self, terminal, split_height, stdout_port, stderr_port, logger_port, stdin_port):
+    def __init__(self, terminal, split_height, stdout_port,
+                 stderr_port, logger_port, stdin_port):
         self.width, self.height = os.get_terminal_size()
         self.logger_port = logger_port
         self.terminal = terminal
@@ -31,41 +33,42 @@ class LogWin:
             '<END>': self.scroll_end,
         }
 
-
     def resize(self):
         lh = self.height
         lw = self.width
-        self.height =  self.rh
+        self.height = self.rh
         self.width = self.terminal.screen_width
         lh = self.height - lh
-        lw = self.width -lw
-        self.terminal.cursor_y+= lh
-        self.cursor_y=self.terminal.cursor_y
-        self.screen = self.terminal.screen.subwin(
-            self.height - self.margin, self.width, self.top + self.header_margin, self.left)
+        lw = self.width - lw
+        self.terminal.cursor_y += lh
+        self.cursor_y = self.terminal.cursor_y
+        self.screen =\
+            self.terminal.screen.subwin(
+                self.height - self.margin,
+                self.width,
+                self.top + self.header_margin,
+                self.left)
         self.screen.clear()
         self.update_header()
         self.screen.bkgd(curses.color_pair(PANEL))
         self.cursor_y = 0
         self.cursor_x = 0
         s = len(self.data) - self.height - self.margin
-        if s<0:
+        if s < 0:
             s = 0
         for i in range(s, len(self.data)):
             self.print_data(self.data[i])
 
-
         self.screen.noutrefresh()
         self.doupdate()
-
 
     def start(self):
         self.loading = False
         self.header_margin = 1
         self.footer_margin = 0
         self.margin = self.header_margin + self.footer_margin
-        self.screen = curses.newwin(self.height-self.margin, self.width,
-        self.top+self.header_margin, self.left)
+        self.screen = curses.newwin(self.height - self.margin, self.width,
+                                    self.top + self.header_margin, self.left)
         self.data = [b'']
         self.color_map = [PANEL]
         self.color_pair = PANEL
@@ -80,24 +83,18 @@ class LogWin:
         curses.curs_set(0)
         self.task = asyncio.async(self.logger_received())
 
-
     @asyncio.coroutine
     def logger_received(self):
-
         reader, writer = yield from asyncio.wait_for (asyncio.open_connection('127.0.0.1', self.logger_port), 10)
         while True:
             try:
                 data = yield from reader.readline()
-                if data==b'':
-                    break   
+                if data == b'':
+                    break
                 self.push_data(data)
                 yield from asyncio.sleep(0.001)
-
             except Exception as err:
-               pass
-
-
-
+                pass
 
     @asyncio.coroutine
     def process_key(self, key):
@@ -120,7 +117,7 @@ class LogWin:
         self.scroll += 1
         self.screen.attron(curses.color_pair(
             self.color_map[len(self.data) - self.scroll - 1 - self.height]))
-        self.print_data(self.data[len(self.data)-self.scroll-1 - self.height])
+        self.print_data(self.data[len(self.data) - self.scroll - 1 - self.height])
 
     @asyncio.coroutine
     def scroll_down(self):
@@ -128,10 +125,10 @@ class LogWin:
             return None
         self.scroll_screen(1)
         self.scroll -= 1
-        self.cursor_y = self.height-self.header_margin - 1
+        self.cursor_y = self.height - self.header_margin - 1
         self.cursor_x = 0
-        self.screen.attron(curses.color_pair(self.color_map[len(self.data)-self.scroll-2]))
-        self.print_data(self.data[len(self.data)-self.scroll-2])
+        self.screen.attron(curses.color_pair(self.color_map[len(self.data) - self.scroll - 2]))
+        self.print_data(self.data[len(self.data) - self.scroll - 2])
 
     @asyncio.coroutine
     def scroll_page_up(self):
@@ -162,16 +159,14 @@ class LogWin:
         self.scroll = 0
         self.cursor_y = 0
         self.cursor_x = 0
-        for i in range(len(self.data) - self.height - self.margin, len(self.data)):
+        for i in range(len(self.data) - self.height - self.margin,
+                       len(self.data)):
             self.print_data(self.data[i])
 
     def scroll_screen(self, n):
         self.screen.scrollok(True)
         self.screen.scroll(n)
         self.screen.scrollok(False)
-
-
-
 
     def update_header(self):
         if self.active:
@@ -180,13 +175,11 @@ class LogWin:
             color = curses.color_pair(HEADER)
 
         if self.scroll:
-            h = 'Logger: %s [%s]' % (len(self.data)-1, self.scroll)
+            h = 'Logger: %s [%s]' % (len(self.data) - 1, self.scroll)
         else:
-            h = 'Logger: %s ' % (len(self.data)-1)
+            h = 'Logger: %s ' % (len(self.data) - 1)
         if self.loading:
             h += '...'
-
-
         self.terminal.screen.move(self.top, self.left)
         self.terminal.screen.addstr(h.ljust(self.width, ' '), color)
         self.terminal.screen.noutrefresh()
@@ -198,14 +191,14 @@ class LogWin:
     def push_data(self, data):
         start_line = len(self.data) - 1
         lines_added = 0
-        data = self.data[len(self.data)-1] + data
-        self.data[len(self.data)-1] = b''
+        data = self.data[len(self.data) - 1] + data
+        self.data[len(self.data) - 1] = b''
         self.cursor_x = 0
 
         while data:
             symbol, data = self.pop_symbol(data)
-            self.data[len(self.data)-1] += symbol
-            if symbol[0] == 10 or self.dst_len(self.data[len(self.data)-1]) == self.width:
+            self.data[len(self.data) - 1] += symbol
+            if symbol[0] == 10 or self.dst_len(self.data[len(self.data) - 1]) == self.width:
                 lines_added += 1
                 self.data.append(b'')
                 self.color_map.append(self.color_pair)
@@ -217,7 +210,7 @@ class LogWin:
             for i in range(start_line, len(self.data)):
                 self.print_data(self.data[i], False)
             self.screen.noutrefresh()
-        while len(self.data)>self.display_limit:
+        while len(self.data) > self.display_limit:
             self.data.pop(0)
         self.update_header()
         self.doupdate()
@@ -234,7 +227,7 @@ class LogWin:
                 fbr = True
                 continue
 
-            if symbol[0] == 10 or self.dst_len(self.data[len(self.data)-1]) == self.width:
+            if symbol[0] == 10 or self.dst_len(self.data[len(self.data) - 1]) == self.width:
                 if symbol[0] == 10:
                     data += self.data[0][:1]
                     self.data[0] = self.data[0][1:]
@@ -283,8 +276,8 @@ class LogWin:
     def pop_escape_code(self, byte_line):
         # return b'', byte_line
         sequence = b'\033['
-        allowed_values = [b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b'0', b';', b'm']
-
+        allowed_values = [b'1', b'2', b'3', b'4', b'5', b'6',
+                          b'7', b'8', b'9', b'0', b';', b'm']
         if len(byte_line) < 3:
             return b'', byte_line
         if byte_line[0:2] == sequence:
@@ -315,7 +308,7 @@ class LogWin:
                 return symbol, byte_line
                 symbol = b''
                 count = 0
-            except:
+            except Exception:
                 count += 1
                 if count == 6:
                     break
@@ -333,7 +326,7 @@ class LogWin:
             try:
                 symbol.decode(ENCODING)
                 return symbol, byte_line
-            except:
+            except Exception:
                 count += 1
                 if count == 6:
                     break
@@ -346,7 +339,7 @@ class LogWin:
         # format_width = self.width
         d = b''.join([x.encode() for x in logger.history])
         self.data = [b'']
-        for i in range(self.height+1):
+        for i in range(self.height + 1):
             d = self.load_data_line(d)
         h = self.height - self.margin
         if len(self.data) > h:
@@ -365,7 +358,7 @@ class LogWin:
             self.cursor_y = self.height - self.margin - h
         self.attached_loggers_names.append(logger.name)
         self.update_header()
-        if self.data[len(self.data)-1]:
+        if self.data[len(self.data) - 1]:
             self.data.append(b'')
         self.screen.noutrefresh()
         self.doupdate()
@@ -380,14 +373,15 @@ class LogWin:
         # print data until line ended or line break or data ended
         while data:
             # if cursor y position out of screen scroll screen
-            if self.cursor_y == (self.height-self.margin):
+            if self.cursor_y == (self.height - self.margin):
                 self.screen.scrollok(True)
                 self.screen.scroll()
                 self.screen.scrollok(False)
                 self.cursor_y -= 1
-            try:    
+            try:
                 self.screen.move(self.cursor_y, self.cursor_x)
-            except: pass
+            except Exception:
+                pass
             while self.cursor_x < self.width and data:
                 data = self.process_escape_sequences(data, True)
                 if not data:
@@ -400,7 +394,7 @@ class LogWin:
                 try:
                     # print symbol
                     self.screen.addstr(self.cursor_y, self.cursor_x, symbol)
-                except:
+                except Exception:
                     pass
                 self.cursor_x += 1
             # end of string do line break
