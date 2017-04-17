@@ -84,7 +84,6 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
                      stderr_port,
                      logger_port,
                      stdin_port).add(LogWin).add(Console).start()
-        del t
         sys.exit(0)
     else:
         # C1  Child should try to start daemon
