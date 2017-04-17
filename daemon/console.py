@@ -233,7 +233,6 @@ class Console:
         if cmd == 'kill':
             PID_FILE = getattr(sys.modules['__main__'], 'PID_FILE')
             f = open(PID_FILE, 'r')
-            print("PID_FILE %s" % PID_FILE)
             i = f.read()
             f.close()
             try:
