@@ -23,7 +23,8 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
           stderr_port=8889,
           logger_port=8890,
           stdin_port=8891,
-          logger_dir=False):
+          logger_dir=False,
+          pid_file=False):
     TERMINAL = terminal
     try:
         HOME_DIR = getattr(sys.modules['__main__'], 'HOME_DIR')
@@ -37,7 +38,9 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
         else:
             HOME_DIR = logger_dir
         setattr(sys.modules['__main__'], 'HOME_DIR', HOME_DIR)
-
+    if not pid_file:
+        pid_file = HOME_DIR + '/pid'
+    setattr(sys.modules['__main__'], 'HOME_DIR', PID_FILE)
     if '--terminal' in sys.argv:
         TERMINAL = 1
     if '--xterminal' in sys.argv:
@@ -45,7 +48,7 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
 
     if '--stop' in sys.argv:
         try:
-            f = open(HOME_DIR + '/pid', 'r')
+            f = open(pid_file, 'r')
             i = f.read()
             f.close()
             os.kill(int(i), signal.SIGTERM)
@@ -98,7 +101,7 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
             # P2  Parent sleep then read pid file
             time.sleep(0.2)
             try:
-                f = open(HOME_DIR + '/pid', 'r')
+                f = open(pid_file, 'r')
                 i = f.read()
                 f.close()
             except Exception:
@@ -108,7 +111,7 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
                     print('Started process id: %s' % pid)
                     sys.exit(2)
             else:
-                fid = open(HOME_DIR + '/lock', 'w+')
+                fid = open(pid_file + '.lock', 'w+')
                 try:
                     fcntl.lockf(fid, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 except IOError:
@@ -120,7 +123,7 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
             #  C2 set lock to lock file
             setattr(sys.modules['__main__'], 'DAEMON_LOCK', None)
             sys.modules['__main__'].DAEMON_LOCK = \
-                open(HOME_DIR + '/lock', 'w+')
+                open(pid_file + '.lock', 'w+')
             try:
                 fcntl.lockf(sys.modules['__main__'].DAEMON_LOCK,
                             fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -149,7 +152,7 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
             if pid > 0:
                 # P3 Start main program
                 try:
-                    f = open(HOME_DIR + '/pid', 'w+')
+                    f = open(pid_file, 'w+')
                     f.write(str(os.getpid()))
                     f.close()
                 except Exception:
@@ -186,7 +189,7 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
             else:
                 # C3 Start monitoring server
                 try:
-                    f = open(HOME_DIR + '/pid_monitoring', 'w+')
+                    f = open(pid_file + '.monitoring', 'w+')
                     f.write(str(os.getpid()))
                     f.close()
                 except Exception:
