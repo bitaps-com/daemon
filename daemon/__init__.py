@@ -40,7 +40,7 @@ def start(split_height=0.5, terminal=0, stdout_port=8888,
         setattr(sys.modules['__main__'], 'HOME_DIR', HOME_DIR)
     if not pid_file:
         pid_file = HOME_DIR + '/pid'
-    setattr(sys.modules['__main__'], 'HOME_DIR', PID_FILE)
+    setattr(sys.modules['__main__'], 'PID_FILE', pid_file)
     if '--terminal' in sys.argv:
         TERMINAL = 1
     if '--xterminal' in sys.argv:
