@@ -62,7 +62,7 @@ class Server:
 
     def stdout_data_received(self):
         try:
-            data = os.read(self.o.fileno(), 4096)
+            data = os.read(self.o.fileno(), 20)
         except Exception:
             return
         if not data:
