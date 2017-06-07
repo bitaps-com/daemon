@@ -6,12 +6,12 @@ This is a Python module that will daemonize your Python script so it can continu
 
 # Usage
 
-import daemon
+```import daemon
 daemon.start()
 
 ... 
 rest code will be executed as daemon
-
+```
 # Command line arguments
 
 ###--terminal  
@@ -28,6 +28,7 @@ rest code will be executed as daemon
 
 # Integrated logger
 
+```
 ...
 logger = daemon.getLogger('test')
 
@@ -38,5 +39,6 @@ log.debug('debug message')
 ...
 logger.setLevel(daemon.WARNING)
 ...
+```
 
 
