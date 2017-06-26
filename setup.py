@@ -7,6 +7,6 @@ setup(name='daemon',
       description='Python daemonizer package',
       author='Alexsei Karpov',
       author_email='karpov.alexsei@bitaps.com',
-      url='http://git.bitaps.com/4tochka/daemon.git',
+      url='https://github.com/bitaps-com/daemon.git',
       packages=['daemon', ],
      )
