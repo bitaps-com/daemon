@@ -81,7 +81,7 @@ class LogWin:
         self.screen.noutrefresh()
         self.doupdate()
         curses.curs_set(0)
-        self.task = asyncio.async(self.logger_received())
+        self.task = asyncio.ensure_future(self.logger_received())
 
     @asyncio.coroutine
     def logger_received(self):
@@ -363,7 +363,7 @@ class LogWin:
         self.screen.noutrefresh()
         self.doupdate()
         logger.pipe_writer = self.terminal.log_display_writer
-        asyncio.async(self.load_data(d))
+        asyncio.ensure_future(self.load_data(d))
         # load and fromat first n records from buffer  and display it
         # start async formating rest buffer
         # once buffer formated set status loaded
