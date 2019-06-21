@@ -70,7 +70,7 @@ class Console:
         self.screen.bkgd(curses.color_pair(PANEL))
         self.scroll_end()
         self.pressed_key = "<reszie>"
-        asyncio.async(self.cursor_up_down_esc())
+        asyncio.ensure_future(self.cursor_up_down_esc())
 
         self.screen.noutrefresh()
         self.doupdate()
@@ -112,13 +112,13 @@ class Console:
         # self.stdout = socket.socket()
         # self.stdout.connect(('127.0.0.1',8888))
         # self.terminal.loop.add_reader(self.stdout, self.stdout_data_received)
-        self.console_task = asyncio.async(self.console_run())
+        self.console_task = asyncio.ensure_future(self.console_run())
         self.stdout_data_received_task =\
-            asyncio.async(self.stdout_data_received())
+            asyncio.ensure_future(self.stdout_data_received())
         self.stderr_data_received_task =\
-            asyncio.async(self.stderr_data_received())
+            asyncio.ensure_future(self.stderr_data_received())
         # if self.terminal.logger is None:
-        #     asyncio.async(self.logger_received())
+        #     asyncio.ensure_future(self.logger_received())
 
     @asyncio.coroutine
     def logger_received(self):

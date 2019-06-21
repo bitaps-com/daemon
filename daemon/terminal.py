@@ -70,7 +70,7 @@ class Terminal:
             if key == '<BTAB>':
                 yield from self.change_active_widget()
                 continue
-            yield from asyncio.async(self.process_key(key))
+            yield from asyncio.ensure_future(self.process_key(key))
 
     @asyncio.coroutine
     def getch(self):
@@ -323,7 +323,7 @@ class Terminal:
             fcntl.fcntl(sys.stdin.fileno(), fcntl.F_SETFL, os.O_NONBLOCK)
             self.loop.add_reader(sys.stdin, stdin_data_received)
         except Exception:
-            asyncio.async(shutdown())
+            asyncio.ensure_future(shutdown())
 
     def start(self):
         if self.widget:
@@ -335,7 +335,7 @@ class Terminal:
                 self.hook_stdin_stream()
             self.active_widget = len(self.widget) - 1
             self.widget[self.active_widget].active = True
-            asyncio.async(self.stdin_reader())
+            asyncio.ensure_future(self.stdin_reader())
             for widget in self.widget:
                 widget.start()
         else:
